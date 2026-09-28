@@ -61,7 +61,7 @@ export default function ScanSimulator({ isOpen, onClose, payload, qrType }: Prop
               <span className="vf-mode-text">
                 {step === 'acquiring' && 'ACQUIRING SPECIMEN OPTICS…'}
                 {step === 'locked' && 'LOCKING REED-SOLOMON MODULES…'}
-                {step === 'decoded' && 'VERIFIED · DECODED SUCCESSFULLY'}
+                {step === 'decoded' && 'SIMULATED DECODE COMPLETE'}
               </span>
             </div>
 
@@ -73,13 +73,13 @@ export default function ScanSimulator({ isOpen, onClose, payload, qrType }: Prop
               >
                 <div className="vf-meta-line">
                   <span className="vf-meta-badge">{qrType.toUpperCase()}</span>
-                  <span className="vf-meta-res">100% PARITY OK</span>
+                  <span className="vf-meta-res">SIMULATED PREVIEW</span>
                 </div>
                 <div className="vf-payload-preview">
                   <code>{payload}</code>
                 </div>
                 <p className="vf-note">
-                  Specimen adheres to ISO/IEC 18004 standards and passes camera OCR verification.
+                  Simulated preview only — confirm scannability with a real phone camera scan.
                 </p>
               </motion.div>
             )}

@@ -157,6 +157,16 @@ export default function App() {
     }, 1450);
   }, []);
 
+  // Safety net: the loader can never trap the UI, even if its
+  // own timers fail. Reduced-motion users skip it instantly.
+  useEffect(() => {
+    const t = window.setTimeout(() => {
+      setBooted(true);
+      setIntroPhase((p) => (p === 'loading' ? 'studio' : p));
+    }, 9500);
+    return () => window.clearTimeout(t);
+  }, []);
+
   const [trickKey, setTrickKey] = useState(0);
   const [celebrateKey, setCelebrateKey] = useState(0);
 
@@ -226,10 +236,13 @@ export default function App() {
     return () => clearTimeout(t);
   }, [payload, qrType, isValid, options]);
 
+  const noticeTimer = useRef(0);
   function flash(msg: string) {
     setNotice(msg);
-    setTimeout(() => setNotice(null), 3000);
+    window.clearTimeout(noticeTimer.current);
+    noticeTimer.current = window.setTimeout(() => setNotice(null), 3000);
   }
+  useEffect(() => () => window.clearTimeout(noticeTimer.current), []);
 
   function setPatch(p: Partial<QROptions>) {
     setOptions((o) => ({ ...o, ...p }));

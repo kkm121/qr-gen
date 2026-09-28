@@ -17,16 +17,27 @@ export default function Preloader({ onDone }: Props) {
   const [stepIndex, setStepIndex] = useState(0);
   const [isExiting, setIsExiting] = useState(false);
   const doneRef = useRef(onDone);
+  const skipTimer = useRef(0);
+
+  useEffect(() => {
+    return () => window.clearTimeout(skipTimer.current);
+  }, []);
 
   useEffect(() => {
     doneRef.current = onDone;
   }, [onDone]);
 
-  // Clean 4.8-second paced sequence
+  // Clean 4.8-second paced sequence. Skipped instantly for
+  // reduced-motion users; parent also force-dismisses on a timer.
   useEffect(() => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      doneRef.current();
+      return;
+    }
     const TOTAL_MS = 4600;
     const start = performance.now();
     let frameId = 0;
+    const timers: number[] = [];
 
     const tick = (now: number) => {
       const elapsed = now - start;
@@ -47,22 +58,30 @@ export default function Preloader({ onDone }: Props) {
       if (progress < 1) {
         frameId = requestAnimationFrame(tick);
       } else {
-        setTimeout(() => {
-          setIsExiting(true);
-          setTimeout(() => {
-            doneRef.current();
-          }, 750);
-        }, 350);
+        timers.push(
+          window.setTimeout(() => {
+            setIsExiting(true);
+            timers.push(
+              window.setTimeout(() => {
+                doneRef.current();
+              }, 750)
+            );
+          }, 350)
+        );
       }
     };
 
     frameId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frameId);
+    return () => {
+      cancelAnimationFrame(frameId);
+      timers.forEach((t) => window.clearTimeout(t));
+    };
   }, []);
 
   const handleSkip = () => {
     setIsExiting(true);
-    setTimeout(() => {
+    window.clearTimeout(skipTimer.current);
+    skipTimer.current = window.setTimeout(() => {
       doneRef.current();
     }, 400);
   };
@@ -157,7 +176,7 @@ export default function Preloader({ onDone }: Props) {
         <footer className="clean-hud-footer">
           <div className="clean-footer-col">
             <span className="clean-col-label">SPECIFICATION</span>
-            <span className="clean-col-val">ISO/IEC 18004 COMPLIANT</span>
+            <span className="clean-col-val">VECTOR QR · REED-SOLOMON EC</span>
           </div>
           <div className="clean-footer-col center">
             <span className="clean-col-label">RUNTIME ENGINE</span>
