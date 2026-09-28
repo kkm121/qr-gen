@@ -21,7 +21,7 @@ export default function Preloader({ onDone }: { onDone: () => void }) {
     let raf = 0;
     let timer = 0;
     const start = performance.now();
-    const DUR = 1500;
+    const DUR = 3000;
     const tick = (now: number) => {
       const p = Math.min((now - start) / DUR, 1);
       const eased = 1 - Math.pow(1 - p, 3);
@@ -30,7 +30,7 @@ export default function Preloader({ onDone }: { onDone: () => void }) {
         raf = requestAnimationFrame(tick);
       } else {
         setExiting(true);
-        timer = window.setTimeout(onDone, 980);
+        timer = window.setTimeout(onDone, 1100);
       }
     };
     raf = requestAnimationFrame(tick);

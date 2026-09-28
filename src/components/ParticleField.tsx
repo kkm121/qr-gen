@@ -52,10 +52,10 @@ export default function ParticleField() {
     geo.setAttribute('position', new THREE.BufferAttribute(base.slice(), 3));
     geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
     const mat = new THREE.PointsMaterial({
-      size: 0.085,
+      size: 0.1,
       vertexColors: true,
       transparent: true,
-      opacity: 0.5,
+      opacity: 0.65,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
       sizeAttenuation: true,

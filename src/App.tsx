@@ -1,6 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import QRCodeStyling from 'qr-code-styling';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import Preloader from './components/Preloader';
 import QrStage from './components/QrStage';
 
@@ -70,7 +70,7 @@ export default function App() {
 
   // Hard fallback so the loader can never trap the UI.
   useEffect(() => {
-    const t = window.setTimeout(() => setBooted(true), 5000);
+    const t = window.setTimeout(() => setBooted(true), 8000);
     return () => window.clearTimeout(t);
   }, []);
 
@@ -301,10 +301,15 @@ export default function App() {
 
       {notice && <div className="toast" role="status">{notice}</div>}
 
-      <main className="layout">
+      <motion.main
+        className="layout"
+        initial={{ opacity: 0, y: 28 }}
+        animate={booted ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
+      >
         {/* Controls */}
         <section className="card controls" aria-label="QR controls">
-          <h2>1 · Content type</h2>
+          <h2><span className="secnum">01</span>Content type</h2>
           <div className="tabs" role="tablist" aria-label="QR types">
             {TYPE_ORDER.map((t) => (
               <button
@@ -314,12 +319,27 @@ export default function App() {
                 className={`tab ${qrType === t ? 'active' : ''}`}
                 onClick={() => setQrType(t)}
               >
-                {TYPE_LABELS[t]}
+                {qrType === t && (
+                  <motion.span
+                    layoutId="tab-pill"
+                    className="tab-pill"
+                    transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                  />
+                )}
+                <span className="tab-label">{TYPE_LABELS[t]}</span>
               </button>
             ))}
           </div>
 
-          <div className="form">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={qrType}
+              className="form"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.22, ease: 'easeOut' }}
+            >
             {qrType === 'url' && (
               <label className="field">
                 <span>Website URL</span>
@@ -396,7 +416,8 @@ export default function App() {
                 <small>Encoded as <code>WIFI:T:...;S:...;P:...;;</code> for camera apps.</small>
               </>
             )}
-          </div>
+            </motion.div>
+          </AnimatePresence>
 
           {inputErrors.length > 0 && (
             <div className="errors" role="alert">
@@ -405,7 +426,7 @@ export default function App() {
             </div>
           )}
 
-          <h2>2 · Design</h2>
+          <h2><span className="secnum">02</span>Design</h2>
           <div className="presets">
             {PRESETS.map((p) => (
               <button key={p.id} className={`preset ${activePreset === p.id ? 'active' : ''}`} onClick={() => applyPreset(p.id)} title={p.description}>
@@ -528,7 +549,7 @@ export default function App() {
 
         {/* Preview */}
         <section className="card preview" aria-label="QR preview">
-          <h2>3 · Live preview</h2>
+          <h2><span className="secnum">03</span>Live preview</h2>
           {!isValid ? (
             <div className="preview-empty">
               <p>Enter valid content to generate the QR.</p>
@@ -569,7 +590,7 @@ export default function App() {
           </div>
           <small className="hint">PNG exports at exactly {options.size}×{options.size}px — what you see is what you download. Verify by scanning with your phone camera.</small>
 
-          <h2>4 · Recent codes (saved locally)</h2>
+          <h2><span className="secnum">04</span>Recent codes <span className="sechint">saved locally</span></h2>
           {recents.length === 0 ? (
             <p className="muted">No recents yet. Valid codes auto-save here and survive refresh.</p>
           ) : (
@@ -606,7 +627,7 @@ export default function App() {
             </ul>
           </details>
         </section>
-      </main>
+      </motion.main>
 
       <footer className="footer">
         <span>Built for GDG on Campus SRM 2026-27 · React + TypeScript · 100% client-side, no backend</span>
