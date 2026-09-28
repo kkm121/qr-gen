@@ -3,6 +3,7 @@ import QRCodeStyling from 'qr-code-styling';
 import { AnimatePresence, motion } from 'framer-motion';
 import Preloader from './components/Preloader';
 import QrStage from './components/QrStage';
+import CursorGlow from './components/CursorGlow';
 
 // three.js is heavy — split it into its own chunk so first paint stays fast.
 const ParticleField = lazy(() => import('./components/ParticleField'));
@@ -49,6 +50,40 @@ function loadState(): { type: QRType; fields: TypeFields; options: QROptions } |
   }
 }
 
+function Headline({ go }: { go: boolean }) {
+  const words: { t: string; em?: boolean; br?: boolean }[] = [
+    { t: 'QR' },
+    { t: 'Atelier', em: true },
+    { t: '—' },
+    { t: 'turn' },
+    { t: 'anything', br: true },
+    { t: 'into' },
+    { t: 'a' },
+    { t: 'scannable' },
+    { t: 'object.' },
+  ];
+  return (
+    <h1 aria-label="QR Atelier — turn anything into a scannable object.">
+      {words.map((w, i) => (
+        <span key={i} className="wmask" aria-hidden="true">
+          <motion.span
+            className={`w${w.em ? ' em' : ''}`}
+            initial={{ y: '115%' }}
+            animate={go ? { y: '0%' } : {}}
+            transition={{ delay: 0.05 + i * 0.055, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {w.t}
+          </motion.span>
+        </span>
+      )).reduce<React.ReactNode[]>((acc, el, i) => {
+        acc.push(el);
+        if (words[i].br) acc.push(<br key={`br-${i}`} />);
+        return acc;
+      }, [])}
+    </h1>
+  );
+}
+
 export default function App() {
   const restored = useMemo(loadState, []);
   const [qrType, setQrType] = useState<QRType>(restored?.type ?? 'url');
@@ -67,12 +102,24 @@ export default function App() {
   const [logoName, setLogoName] = useState<string>('');
   const [booted, setBooted] = useState(false);
   const dismissBoot = useCallback(() => setBooted(true), []);
+  const [trickKey, setTrickKey] = useState(0);
+  const [celebrateKey, setCelebrateKey] = useState(0);
+  const bootTricked = useRef(false);
 
   // Hard fallback so the loader can never trap the UI.
   useEffect(() => {
-    const t = window.setTimeout(() => setBooted(true), 8000);
+    const t = window.setTimeout(() => setBooted(true), 9500);
     return () => window.clearTimeout(t);
   }, []);
+
+  // The QR jumps, spins and lands the moment the curtain lifts.
+  useEffect(() => {
+    if (booted && isValid && !bootTricked.current) {
+      bootTricked.current = true;
+      setTrickKey(1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [booted]);
 
   const previewRef = useRef<HTMLDivElement>(null);
   const qrRef = useRef<QRCodeStyling | null>(null);
@@ -210,7 +257,6 @@ export default function App() {
       return;
     }
     qrRef.current?.download({ name: `gdg-qr-${qrType}-${options.size}px`, extension: ext }).catch(() => {
-      // fallback: canvas toDataURL
       const canvas = previewRef.current?.querySelector('canvas');
       if (canvas && ext === 'png') {
         const a = document.createElement('a');
@@ -220,6 +266,7 @@ export default function App() {
       } else flash('Download failed in this browser. Try Chrome/Edge.');
     });
     flash(`Downloaded ${ext.toUpperCase()} at ${options.size}px.`);
+    setCelebrateKey((k) => k + 1);
   }
 
   async function copyText() {
@@ -268,6 +315,7 @@ export default function App() {
       <Suspense fallback={null}>
         <ParticleField />
       </Suspense>
+      <CursorGlow />
       <header className="topbar">
         <div className="brand">
           <span className="gdg-dots" aria-hidden="true">
@@ -275,11 +323,7 @@ export default function App() {
           </span>
           <div>
             <p className="kicker">Realtime QR Atelier · Encode — Design — Export</p>
-            <h1>
-              QR <em>Atelier</em> — turn anything
-              <br />
-              into a scannable object.
-            </h1>
+            <Headline go={booted} />
           </div>
         </div>
         <div className="top-actions">
@@ -317,7 +361,12 @@ export default function App() {
                 role="tab"
                 aria-selected={qrType === t}
                 className={`tab ${qrType === t ? 'active' : ''}`}
-                onClick={() => setQrType(t)}
+                onClick={() => {
+                  if (t !== qrType) {
+                    setQrType(t);
+                    setTrickKey((k) => k + 1);
+                  }
+                }}
               >
                 {qrType === t && (
                   <motion.span
@@ -563,6 +612,8 @@ export default function App() {
               ratio={ratio.toFixed(2)}
               payloadLen={payload.length}
               valid={isValid}
+              trickKey={trickKey}
+              celebrateKey={celebrateKey}
             />
           )}
 

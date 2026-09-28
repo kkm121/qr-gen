@@ -1,5 +1,12 @@
-import { useRef, type RefObject } from 'react';
-import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion';
+import { useEffect, useRef, type RefObject } from 'react';
+import {
+  motion,
+  useAnimationControls,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+} from 'framer-motion';
 
 interface Props {
   hostRef: RefObject<HTMLDivElement | null>;
@@ -8,17 +15,44 @@ interface Props {
   ratio: string;
   payloadLen: number;
   valid: boolean;
+  trickKey: number;
+  celebrateKey: number;
 }
 
 /**
  * Original "specimen stage" presentation for the QR: a floating mat with
- * spring-smoothed 3D tilt, a cursor-tracked glare, orbit readouts and a
- * metadata strip. The QR canvas itself is mounted untouched inside —
- * the downloaded file is byte-identical to what renders here.
+ * spring-smoothed 3D tilt, cursor-tracked glare, orbit readouts and a
+ * metadata strip — plus two surprises:
+ *  - trickKey bump → the card JUMPS, SPINS 360° and LANDS (boot + type switch)
+ *  - celebrateKey bump → a shockwave ring fires (downloads)
+ * The QR canvas itself is mounted untouched inside — the downloaded file
+ * is byte-identical to what renders here.
  */
-export default function QrStage({ hostRef, size, ec, ratio, payloadLen, valid }: Props) {
+export default function QrStage({
+  hostRef,
+  size,
+  ec,
+  ratio,
+  payloadLen,
+  valid,
+  trickKey,
+  celebrateKey,
+}: Props) {
   const frameRef = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
+  const controls = useAnimationControls();
+  const prevTrick = useRef(0);
+
+  useEffect(() => {
+    if (reduce || trickKey === 0 || trickKey === prevTrick.current) return;
+    prevTrick.current = trickKey;
+    controls.start({
+      rotateY: [0, 360],
+      y: [0, -72, 0],
+      scale: [1, 1.06, 1],
+      transition: { duration: 1.15, ease: 'easeInOut' },
+    });
+  }, [trickKey, controls, reduce]);
 
   const rx = useMotionValue(0);
   const ry = useMotionValue(0);
@@ -59,32 +93,37 @@ export default function QrStage({ hostRef, size, ec, ratio, payloadLen, valid }:
         {ratio}:1
       </span>
 
-      <motion.div
-        className="tilt"
-        style={reduce ? undefined : { rotateX: srx, rotateY: sry, transformPerspective: 900 }}
-        animate={reduce ? undefined : { y: [0, -10, 0] }}
-        transition={reduce ? undefined : { duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-      >
-        <div className="qr-mat">
-          <div className="qr-mat-head">
-            <span className={`status-dot ${valid ? 'ok' : 'bad'}`} />
-            <span>SPECIMEN · {valid ? 'LIVE' : 'AWAITING INPUT'}</span>
-            <span className="qr-mat-len">{payloadLen} CH</span>
+      <motion.div className="trick" animate={controls}>
+        <motion.div
+          className="tilt"
+          style={reduce ? undefined : { rotateX: srx, rotateY: sry, transformPerspective: 900 }}
+          animate={reduce ? undefined : { y: [0, -10, 0] }}
+          transition={reduce ? undefined : { duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <div className="qr-mat">
+            {celebrateKey > 0 && (
+              <span key={celebrateKey} className="shockwave" aria-hidden="true" />
+            )}
+            <div className="qr-mat-head">
+              <span className={`status-dot ${valid ? 'ok' : 'bad'}`} />
+              <span>SPECIMEN · {valid ? 'LIVE' : 'AWAITING INPUT'}</span>
+              <span className="qr-mat-len">{payloadLen} CH</span>
+            </div>
+            <div ref={hostRef} className="qr-box" aria-label="Generated QR code" />
+            <motion.div
+              className="glare"
+              aria-hidden="true"
+              style={reduce ? undefined : { left: glareLeft, top: glareTop }}
+            />
+            <div className="qr-mat-foot" aria-hidden="true">
+              <span>
+                {size}×{size}
+              </span>
+              <span className="scanline" />
+              <span>GDG SRM</span>
+            </div>
           </div>
-          <div ref={hostRef} className="qr-box" aria-label="Generated QR code" />
-          <motion.div
-            className="glare"
-            aria-hidden="true"
-            style={reduce ? undefined : { left: glareLeft, top: glareTop }}
-          />
-          <div className="qr-mat-foot" aria-hidden="true">
-            <span>
-              {size}×{size}
-            </span>
-            <span className="scanline" />
-            <span>GDG SRM</span>
-          </div>
-        </div>
+        </motion.div>
       </motion.div>
     </div>
   );

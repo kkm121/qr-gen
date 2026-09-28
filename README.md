@@ -54,13 +54,19 @@ Optional enhancements included: SVG download, logo upload (auto-bumps EC to H), 
 
 ## Experience notes (X-factor, all original code)
 
-- **Boot preloader** — eased 0→100 counter with cycling verbs and a curved
-  curtain exit; force-dismissed on a 5s timer and skipped for reduced motion.
+- **Boot sequence (~5.6s)** — three acts: eased 0→100 counter with cycling
+  verbs + status lines over a giant outlined watermark, a READY hold, then a
+  dual-panel curtain exit (colour layer + black layer with curved edge).
+  Force-dismissed on a 9.5s timer, skipped for reduced motion.
 - **Particle backdrop** — breathing GDG-coloured three.js grid with pointer
-  parallax, DPR-capped, paused when the tab hides.
+  parallax, DPR-capped, paused when the tab hides (lazy-loaded chunk).
 - **Specimen stage** — the QR floats on a spring-physics 3D-tilt mat with glare,
-  orbit readouts (EC / size / contrast) and a metadata strip. The QR canvas
-  itself is mounted untouched, so the downloaded PNG is identical to the preview.
+  orbit readouts (EC / size / contrast) and a metadata strip. On boot and every
+  type switch the card **jumps, spins 360° and lands**; every download fires a
+  shockwave ring. The QR canvas itself is mounted untouched, so the downloaded
+  PNG is identical to the preview.
+- **Headline reveal** — word-by-word masked rise after the curtain lifts;
+  sliding tab pill, cross-fading forms, custom sliders, cursor glow.
 - All 10 required task behaviours are unchanged and covered by the same
   validation, warnings, recents and test checklist.
 
