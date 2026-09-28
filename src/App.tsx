@@ -362,7 +362,7 @@ export default function App() {
     try {
       await navigator.clipboard.writeText(payload);
       sounds.playTap();
-      flash('Payload copied to clipboard.');
+      flash(qrType === 'url' ? 'URL copied to clipboard.' : `${TYPE_LABELS[qrType]} copied to clipboard.`);
     } catch {
       flash('Clipboard access restricted.');
     }
@@ -1277,9 +1277,10 @@ export default function App() {
               className="apple-export-btn ghost"
               disabled={!isValid}
               onClick={copyText}
+              title={qrType === 'url' ? 'Copy URL' : `Copy ${TYPE_LABELS[qrType]}`}
             >
               <IconCopy />
-              <span>Copy Payload</span>
+              <span>{qrType === 'url' ? 'Copy URL' : `Copy ${TYPE_LABELS[qrType]}`}</span>
             </motion.button>
 
             <motion.button
