@@ -274,7 +274,7 @@ export default function App() {
             <i className="dot blue" /><i className="dot red" /><i className="dot yellow" /><i className="dot green" />
           </span>
           <div>
-            <p className="kicker">GDG on Campus SRM · Technical Domain · Frontend Task 1</p>
+            <p className="kicker">Realtime QR Atelier · Encode — Design — Export</p>
             <h1>
               QR <em>Atelier</em> — turn anything
               <br />
