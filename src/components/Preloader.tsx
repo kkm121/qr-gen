@@ -9,7 +9,7 @@ const STEPS = [
 ];
 
 interface Props {
-  onDone: (immediate?: boolean) => void;
+  onDone: () => void;
 }
 
 export default function Preloader({ onDone }: Props) {
@@ -22,13 +22,13 @@ export default function Preloader({ onDone }: Props) {
     doneRef.current = onDone;
   }, [onDone]);
 
-  // Clean, sleek 2.0-second paced sequence with immediate skip and tab-focus resilience
+  // Clean 4.6-second paced sequence matching award-winning presentation pacing
   useEffect(() => {
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
-      doneRef.current(true);
+      doneRef.current();
       return;
     }
-    const TOTAL_MS = 2000;
+    const TOTAL_MS = 4600;
     const start = performance.now();
     let frameId = 0;
     const timers: number[] = [];
@@ -52,38 +52,31 @@ export default function Preloader({ onDone }: Props) {
       if (progress < 1) {
         frameId = requestAnimationFrame(tick);
       } else {
-        setIsExiting(true);
         timers.push(
           window.setTimeout(() => {
-            doneRef.current();
-          }, 450)
+            setIsExiting(true);
+            timers.push(
+              window.setTimeout(() => {
+                doneRef.current();
+              }, 750)
+            );
+          }, 350)
         );
       }
     };
 
     frameId = requestAnimationFrame(tick);
-
-    // Fallback interval in case requestAnimationFrame throttles when tab is backgrounded
-    const fallbackInterval = window.setInterval(() => {
-      const elapsed = performance.now() - start;
-      if (elapsed >= TOTAL_MS + 200) {
-        cancelAnimationFrame(frameId);
-        window.clearInterval(fallbackInterval);
-        setIsExiting(true);
-        doneRef.current();
-      }
-    }, 250);
-
     return () => {
       cancelAnimationFrame(frameId);
-      window.clearInterval(fallbackInterval);
       timers.forEach((t) => window.clearTimeout(t));
     };
   }, []);
 
   const handleSkip = () => {
     setIsExiting(true);
-    doneRef.current(true);
+    setTimeout(() => {
+      doneRef.current();
+    }, 400);
   };
 
   const activeStep = STEPS[stepIndex] || STEPS[0];

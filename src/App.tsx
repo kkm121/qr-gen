@@ -144,28 +144,11 @@ export default function App() {
 
   const [notice, setNotice] = useState<string | null>(null);
   const [logoName, setLogoName] = useState<string>('');
-  const [booted, setBooted] = useState(() => {
-    try {
-      return sessionStorage.getItem('qr_studio_booted') === '1';
-    } catch {
-      return false;
-    }
-  });
-  const [introPhase, setIntroPhase] = useState<'loading' | 'title' | 'studio'>(() => {
-    try {
-      return sessionStorage.getItem('qr_studio_booted') === '1' ? 'studio' : 'loading';
-    } catch {
-      return 'loading';
-    }
-  });
+  const [booted, setBooted] = useState(false);
+  const [introPhase, setIntroPhase] = useState<'loading' | 'title' | 'studio'>('loading');
 
   const dismissBoot = useCallback((immediate?: boolean) => {
     setBooted(true);
-    try {
-      sessionStorage.setItem('qr_studio_booted', '1');
-    } catch {
-      /* ignore */
-    }
 
     if (immediate) {
       setIntroPhase('studio');
@@ -175,20 +158,21 @@ export default function App() {
     setIntroPhase('title');
     sounds.playJump();
 
-    // 0.8s punchy presentation flip and smooth studio entrance
+    // 1.45s presentation flip and smooth studio entrance
     setTimeout(() => {
       setIntroPhase('studio');
-      setTimeout(() => sounds.playLand(), 150);
-    }, 800);
+      setTimeout(() => sounds.playLand(), 810);
+      setTimeout(() => sounds.playLand(), 1600);
+    }, 1450);
   }, []);
 
   // Safety net: the loader can never trap the UI, even if its
-  // own timers fail. Reduced-motion users skip it instantly.
+  // own timers fail.
   useEffect(() => {
     const t = window.setTimeout(() => {
       setBooted(true);
       setIntroPhase('studio');
-    }, 3500);
+    }, 9500);
     return () => window.clearTimeout(t);
   }, []);
 
