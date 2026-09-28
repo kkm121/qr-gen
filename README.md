@@ -7,7 +7,7 @@
 [![TypeScript: 5.x](https://img.shields.io/badge/TypeScript-Strict-3178c6.svg)](https://www.typescriptlang.org)
 [![Three.js: 3D](https://img.shields.io/badge/Three.js-WebGL-black.svg)](https://threejs.org)
 [![Storage: IndexedDB](https://img.shields.io/badge/Storage-IndexedDB-orange.svg)](src/lib/db.ts)
-[![Tests: 23 Passing](https://img.shields.io/badge/Tests-23%20Passing-success.svg)](src/lib/qr.test.ts)
+[![Tests: 28 Passing](https://img.shields.io/badge/Tests-28%20Passing-success.svg)](src/lib/qr.test.ts)
 
 ---
 
@@ -163,10 +163,16 @@ npm test
   ✔ saves, retrieves, and deduplicates recent records (0.2976ms)
   ✔ deletes individual records and clears database (0.139ms)
   ✔ exports valid formatted JSON archive (0.7808ms)
-✔ Recent Generations Database Engine (2.5959ms)
-ℹ tests 23
+✔ Recent Generations Database Engine (2.5363ms)
+▶ Preset Color Fidelity & Gradient Isolation
+  ✔ Classic preset is pure solid monochrome with no gradient (0.1665ms)
+  ✔ Sunset Gradient preset produces linear gradient and no solid dots color (0.0659ms)
+  ✔ Switching from Sunset to Classic completely eliminates the gradient (0.0624ms)
+  ✔ All 6 presets define unique and distinct color schemes (0.0395ms)
+✔ Preset Color Fidelity & Gradient Isolation (0.5448ms)
+ℹ tests 28
 ℹ suites 0
-ℹ pass 23
+ℹ pass 28
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0

@@ -481,3 +481,90 @@ export function calculateScanScore(
 
   return Math.max(15, Math.min(100, Math.round(score)));
 }
+
+export interface RawQRCodeStylingConfig {
+  width: number;
+  height: number;
+  data: string;
+  margin: number;
+  qrOptions: { errorCorrectionLevel: ECLevel };
+  backgroundOptions: { color: string };
+  image?: string;
+  imageOptions: {
+    hideBackgroundDots: boolean;
+    imageSize: number;
+    margin: number;
+    crossOrigin: string;
+  };
+  dotsOptions: {
+    type: DotType;
+    color?: string;
+    gradient?: {
+      type: 'linear';
+      rotation: number;
+      colorStops: Array<{ offset: number; color: string }>;
+    };
+  };
+  cornersSquareOptions: {
+    type: 'square' | 'extra-rounded' | 'dot';
+    color: string;
+  };
+  cornersDotOptions: {
+    type: 'square' | 'dot';
+    color: string;
+  };
+}
+
+export function createQrCodeOptions(dataStr: string, options: QROptions): RawQRCodeStylingConfig {
+  const fgColor = isValidHex(options.fg) ? options.fg : '#111111';
+  const bgColor = isValidHex(options.bg) ? options.bg : '#ffffff';
+  const gradientToColor = isValidHex(options.gradientTo) ? options.gradientTo : '#0b57d0';
+
+  const dotsOptions: RawQRCodeStylingConfig['dotsOptions'] = {
+    type: options.dotType,
+  };
+
+  if (options.useGradient) {
+    dotsOptions.gradient = {
+      type: 'linear',
+      rotation: 45,
+      colorStops: [
+        { offset: 0, color: fgColor },
+        { offset: 1, color: gradientToColor },
+      ],
+    };
+  } else {
+    dotsOptions.color = fgColor;
+  }
+
+  const config: RawQRCodeStylingConfig = {
+    width: options.size,
+    height: options.size,
+    data: dataStr || 'https://apple.com',
+    margin: options.margin * 4,
+    qrOptions: { errorCorrectionLevel: options.ec },
+    backgroundOptions: { color: bgColor },
+    imageOptions: {
+      hideBackgroundDots: true,
+      imageSize: options.logoSize,
+      margin: 4,
+      crossOrigin: 'anonymous',
+    },
+    dotsOptions,
+    cornersSquareOptions: {
+      type: options.cornerSquare,
+      color: fgColor,
+    },
+    cornersDotOptions: {
+      type: options.cornerDot,
+      color: fgColor,
+    },
+  };
+
+  if (options.logoDataUrl) {
+    config.image = options.logoDataUrl;
+  }
+
+  return config;
+}
+

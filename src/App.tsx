@@ -15,6 +15,7 @@ import {
   TYPE_LABELS,
   buildPayload,
   contrastRatio,
+  createQrCodeOptions,
   isValidHex,
   timeAgo,
   validateInputs,
@@ -202,71 +203,16 @@ export default function App() {
     };
   }, []);
 
-  // Update QR dynamically & ensure instance is attached
+  // Update QR dynamically & ensure instance is attached with 100% clean gradient isolation
   useEffect(() => {
     const el = previewRef.current;
     if (!el) return;
 
-    if (!qrRef.current) {
-      el.innerHTML = '';
-      const qr = new QRCodeStyling({
-        width: options.size,
-        height: options.size,
-        data: payload || 'https://apple.com',
-        margin: options.margin * 4,
-        qrOptions: { errorCorrectionLevel: options.ec },
-        backgroundOptions: { color: isValidHex(options.bg) ? options.bg : '#ffffff' },
-        dotsOptions: { type: options.dotType, color: isValidHex(options.fg) ? options.fg : '#111111' },
-      });
-      qr.append(el);
-      qrRef.current = qr;
-    }
-
-    const qr = qrRef.current;
-    const data = payload || 'https://apple.com';
-    qr.update({
-      data,
-      width: options.size,
-      height: options.size,
-      margin: options.margin * 4,
-      qrOptions: { errorCorrectionLevel: options.ec },
-      backgroundOptions: { color: isValidHex(options.bg) ? options.bg : '#ffffff' },
-      image: options.logoDataUrl || undefined,
-      imageOptions: {
-        hideBackgroundDots: true,
-        imageSize: options.logoSize,
-        margin: 4,
-        crossOrigin: 'anonymous',
-      },
-      dotsOptions: options.useGradient
-        ? {
-            type: options.dotType,
-            gradient: {
-              type: 'linear',
-              rotation: 45,
-              colorStops: [
-                { offset: 0, color: isValidHex(options.fg) ? options.fg : '#111111' },
-                {
-                  offset: 1,
-                  color: isValidHex(options.gradientTo) ? options.gradientTo : '#0b57d0',
-                },
-              ],
-            },
-          }
-        : { type: options.dotType, color: isValidHex(options.fg) ? options.fg : '#111111' },
-      cornersSquareOptions: {
-        type: options.cornerSquare,
-        color: isValidHex(options.fg) ? options.fg : '#111111',
-      },
-      cornersDotOptions: {
-        type: options.cornerDot,
-        color: isValidHex(options.fg) ? options.fg : '#111111',
-      },
-    });
-
-    if (el.childElementCount === 0 && isValid) {
-      qr.append(el);
-    }
+    el.innerHTML = '';
+    const config = createQrCodeOptions(payload, options);
+    const qr = new QRCodeStyling(config);
+    qr.append(el);
+    qrRef.current = qr;
   }, [payload, options, isValid]);
 
   // Debounced auto-save to IndexedDB database
@@ -287,6 +233,7 @@ export default function App() {
 
   function setPatch(p: Partial<QROptions>) {
     setOptions((o) => ({ ...o, ...p }));
+    setActivePreset(null);
   }
 
   function triggerJump() {
@@ -297,7 +244,11 @@ export default function App() {
     const p = PRESETS.find((x) => x.id === id);
     if (!p) return;
     sounds.playTap();
-    setOptions((o) => ({ ...o, ...p.patch }));
+    setOptions((o) => ({
+      ...o,
+      useGradient: false,
+      ...p.patch,
+    }));
     setActivePreset(id);
     triggerJump();
     flash(`Preset "${p.name}" applied.`);
@@ -394,16 +345,9 @@ export default function App() {
         }
       }
 
-      // Tier 3: Off-screen QRCodeStyling instance fallback
-      const tempQr = new QRCodeStyling({
-        width: options.size,
-        height: options.size,
-        data: payload,
-        margin: options.margin * 4,
-        qrOptions: { errorCorrectionLevel: options.ec },
-        backgroundOptions: { color: isValidHex(options.bg) ? options.bg : '#ffffff' },
-        dotsOptions: { type: options.dotType, color: isValidHex(options.fg) ? options.fg : '#111111' },
-      });
+      // Tier 3: Off-screen QRCodeStyling instance fallback with identical configuration
+      const tempConfig = createQrCodeOptions(payload, options);
+      const tempQr = new QRCodeStyling(tempConfig);
       await tempQr.download({ name: `qr-${qrType}-${options.size}px`, extension: ext });
       sounds.playDownloadChime();
       flash(`Exported ${ext.toUpperCase()}.`);
@@ -441,8 +385,13 @@ export default function App() {
   function loadRecent(r: RecentItem) {
     sounds.playTap();
     setQrType(r.type);
-    setOptions({ ...r.options, logoDataUrl: null });
     setActivePreset(null);
+    setOptions({
+      ...DEFAULT_OPTIONS,
+      ...r.options,
+      useGradient: Boolean(r.options.useGradient),
+      logoDataUrl: null,
+    });
     try {
       if (r.type === 'url' || r.type === 'text') {
         setFields((f) => ({ ...f, url: { url: r.payload }, text: { text: r.payload } }));

@@ -11,6 +11,7 @@ import {
   PRESETS,
   DEFAULT_OPTIONS,
   DEFAULT_FIELDS,
+  createQrCodeOptions,
   type TypeFields,
 } from './qr.ts';
 
@@ -219,3 +220,55 @@ test('Recent Generations Database Engine', async (t: TestContext) => {
     assert.ok(parsed.records.length >= 1);
   });
 });
+
+test('Preset Color Fidelity & Gradient Isolation', async (t: TestContext) => {
+  await t.test('Classic preset is pure solid monochrome with no gradient', () => {
+    const classicPreset = PRESETS.find((p) => p.id === 'classic')!;
+    assert.ok(classicPreset);
+    const config = createQrCodeOptions('https://apple.com', {
+      ...DEFAULT_OPTIONS,
+      ...classicPreset.patch,
+    });
+    assert.equal(config.dotsOptions.color, '#111111');
+    assert.equal(config.dotsOptions.gradient, undefined);
+    assert.equal(config.backgroundOptions.color, '#ffffff');
+    assert.equal(config.cornersSquareOptions.color, '#111111');
+  });
+
+  await t.test('Sunset Gradient preset produces linear gradient and no solid dots color', () => {
+    const sunsetPreset = PRESETS.find((p) => p.id === 'sunset')!;
+    assert.ok(sunsetPreset);
+    const config = createQrCodeOptions('https://apple.com', {
+      ...DEFAULT_OPTIONS,
+      ...sunsetPreset.patch,
+    });
+    assert.equal(config.dotsOptions.color, undefined);
+    assert.ok(config.dotsOptions.gradient);
+    assert.equal(config.dotsOptions.gradient?.type, 'linear');
+    assert.equal(config.dotsOptions.gradient?.colorStops[0].color, '#d93025');
+    assert.equal(config.dotsOptions.gradient?.colorStops[1].color, '#f9ab00');
+  });
+
+  await t.test('Switching from Sunset to Classic completely eliminates the gradient', () => {
+    const sunsetPreset = PRESETS.find((p) => p.id === 'sunset')!;
+    const classicPreset = PRESETS.find((p) => p.id === 'classic')!;
+
+    // First simulate Sunset
+    let currentOptions = { ...DEFAULT_OPTIONS, ...sunsetPreset.patch };
+    const sunsetConfig = createQrCodeOptions('https://apple.com', currentOptions);
+    assert.ok(sunsetConfig.dotsOptions.gradient);
+
+    // Now switch to Classic (with gradient explicitly reset to false)
+    currentOptions = { ...currentOptions, useGradient: false, ...classicPreset.patch };
+    const classicConfig = createQrCodeOptions('https://apple.com', currentOptions);
+    assert.equal(classicConfig.dotsOptions.gradient, undefined);
+    assert.equal(classicConfig.dotsOptions.color, '#111111');
+  });
+
+  await t.test('All 6 presets define unique and distinct color schemes', () => {
+    const colorSignatures = PRESETS.map((p) => `${p.patch.fg}_${p.patch.bg}_${p.patch.useGradient}`);
+    const uniqueSignatures = new Set(colorSignatures);
+    assert.equal(uniqueSignatures.size, PRESETS.length, 'Every preset must have a distinct color scheme');
+  });
+});
+
