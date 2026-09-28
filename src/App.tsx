@@ -166,13 +166,17 @@ export default function App() {
     }, 1450);
   }, []);
 
-  // Safety net: the loader can never trap the UI, even if its
-  // own timers fail.
+  // Safety net fallback so the UI is never trapped even if hardware timers throttle
   useEffect(() => {
     const t = window.setTimeout(() => {
-      setBooted(true);
-      setIntroPhase('studio');
-    }, 9500);
+      setBooted((b) => {
+        if (!b) {
+          setIntroPhase('studio');
+          return true;
+        }
+        return b;
+      });
+    }, 12000);
     return () => window.clearTimeout(t);
   }, []);
 

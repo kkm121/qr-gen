@@ -24,10 +24,6 @@ export default function Preloader({ onDone }: Props) {
 
   // Clean 4.6-second paced sequence matching award-winning presentation pacing
   useEffect(() => {
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
-      doneRef.current();
-      return;
-    }
     const TOTAL_MS = 4600;
     const start = performance.now();
     let frameId = 0;

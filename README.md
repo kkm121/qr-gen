@@ -133,7 +133,7 @@ Export is a 3-tier pipeline (`App.tsx:download`): (1) `qr-code-styling` direct d
 
 ## 6. Experience Details
 
-- **Boot sequence** (~4.6s plus exit): staged counter with status lines, READY hold, dual-panel curved curtain exit, and a Skip button. Skipped instantly under `prefers-reduced-motion`; a 9.5s parent timer force-dismisses it so it can never trap the UI.
+- **Boot sequence** (~4.6s plus exit): staged counter with status lines, READY hold, dual-panel curved curtain exit, and an instant Skip button in the HUD.
 - **Stage**: spring-physics 3D tilt with cursor glare, orbit readouts, and a jump-spin-land trick on boot, type switch, preset, and logo apply. The QR canvas mounts untouched, so the download matches the preview.
 - **Sound**: synthesized Web Audio taps, jumps, landings, and chimes; toggle in the header. Browsers gate audio on first interaction, so boot sounds stay silent until then.
 - **Scan simulator**: an animated viewfinder HUD. It is explicitly a simulation and proves nothing; scannability is confirmed by scanning exports with a phone camera (see the testing checklist in-app).
