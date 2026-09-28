@@ -164,10 +164,10 @@ export const PRESETS: Preset[] = [
   {
     id: 'cupertino',
     name: 'Cupertino Titanium',
-    description: 'Apple space black & platinum aesthetic',
+    description: 'Royal violet & frosted titanium aesthetic',
     patch: {
-      fg: '#0f172a',
-      bg: '#f8fafc',
+      fg: '#6d28d9',
+      bg: '#faf5ff',
       ec: 'H',
       margin: 2,
       dotType: 'extra-rounded',

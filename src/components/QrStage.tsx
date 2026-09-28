@@ -42,7 +42,9 @@ export default function QrStage({
   const [isJumping, setIsJumping] = useState(false);
   const [showShockwave, setShowShockwave] = useState(false);
   const [isHologramMode, setIsHologramMode] = useState(false);
-  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(
+    () => typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('simulator')
+  );
 
   // Jump, Transparent 3D Rotate, and Smooth Landing
   useEffect(() => {

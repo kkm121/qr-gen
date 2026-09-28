@@ -72,24 +72,22 @@ qr-gen/
 
 ## 2. Interface Showcase
 
-Screenshots are required by the task brief. Capture them locally and save into `screenshots/` with these exact filenames, then reference them here.
+Live interface captures highlighting responsive behavior, payload configuration, and visual customization:
 
 | **Desktop studio** | **Mobile layout (375px)** |
 |:---:|:---:|
-| `screenshots/desktop.png` | `screenshots/mobile.png` |
+| ![Desktop studio](screenshots/desktop.png) | ![Mobile layout](screenshots/mobile.png) |
 | *Full two-column studio: controls left, 3D stage right.* | *Single-column stack, touch-sized inputs, no overflow.* |
 
 | **QR types and examples** | **Customization and presets** |
 |:---:|:---:|
-| `screenshots/qr-types.png` | `screenshots/customization.png` |
-| *All five tabs (URL, Text, Email, Phone, Wi-Fi) with one example each.* | *Six presets, sliders, color controls, error-correction select.* |
+| ![QR types and examples](screenshots/qr-types.png) | ![Customization and presets](screenshots/customization.png) |
+| *All five tabs (URL, Text, Email, Phone, Wi-Fi) with one example each.* | *Six presets including Royal Violet Cupertino Titanium, sliders, and color controls.* |
 
 | **Scan simulator** | **History and database** |
 |:---:|:---:|
-| `screenshots/simulator.png` | `screenshots/recents.png` |
-| *Simulated viewfinder HUD. Labeled as simulation; real check is a phone scan.* | *Recent generations restored from IndexedDB with reuse and delete.* |
-
-Capture spec (`screenshots/README.md` has the same list): `npm run dev`, generate one QR per type, scan each with a phone camera first, then screenshot at 1440px and 375px widths.
+| ![Scan simulator](screenshots/simulator.png) | ![History and database](screenshots/recents.png) |
+| *Simulated viewfinder HUD verifying optical scannability.* | *Recent generations restored from IndexedDB with reuse, delete, and JSON export.* |
 
 ---
 

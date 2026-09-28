@@ -120,6 +120,10 @@ function loadState(): { type: QRType; fields: TypeFields; options: QROptions } |
   }
 }
 
+function createExportFilename(): string {
+  return `qr-studio-database-export-${Date.now()}.json`;
+}
+
 export default function App() {
   const restored = useMemo(() => loadState(), []);
   const [qrType, setQrType] = useState<QRType>(restored?.type ?? 'url');
@@ -140,21 +144,42 @@ export default function App() {
 
   const [notice, setNotice] = useState<string | null>(null);
   const [logoName, setLogoName] = useState<string>('');
-  const [booted, setBooted] = useState(false);
-  const [introPhase, setIntroPhase] = useState<'loading' | 'title' | 'studio'>('loading');
+  const [booted, setBooted] = useState(() => {
+    try {
+      return sessionStorage.getItem('qr_studio_booted') === '1';
+    } catch {
+      return false;
+    }
+  });
+  const [introPhase, setIntroPhase] = useState<'loading' | 'title' | 'studio'>(() => {
+    try {
+      return sessionStorage.getItem('qr_studio_booted') === '1' ? 'studio' : 'loading';
+    } catch {
+      return 'loading';
+    }
+  });
 
-  const dismissBoot = useCallback(() => {
+  const dismissBoot = useCallback((immediate?: boolean) => {
     setBooted(true);
+    try {
+      sessionStorage.setItem('qr_studio_booted', '1');
+    } catch {
+      /* ignore */
+    }
+
+    if (immediate) {
+      setIntroPhase('studio');
+      return;
+    }
+
     setIntroPhase('title');
     sounds.playJump();
 
-    // 1.45s GTA V style 3D flip, mid-air pause, and seamless anime transition
+    // 0.8s punchy presentation flip and smooth studio entrance
     setTimeout(() => {
       setIntroPhase('studio');
-      // Synchronized acoustic landing thuds when Card 1 and Card 2 slam into place
-      setTimeout(() => sounds.playLand(), 810);
-      setTimeout(() => sounds.playLand(), 1600);
-    }, 1450);
+      setTimeout(() => sounds.playLand(), 150);
+    }, 800);
   }, []);
 
   // Safety net: the loader can never trap the UI, even if its
@@ -162,8 +187,8 @@ export default function App() {
   useEffect(() => {
     const t = window.setTimeout(() => {
       setBooted(true);
-      setIntroPhase((p) => (p === 'loading' ? 'studio' : p));
-    }, 9500);
+      setIntroPhase('studio');
+    }, 3500);
     return () => window.clearTimeout(t);
   }, []);
 
@@ -438,7 +463,7 @@ export default function App() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `qr-studio-database-export-${Date.now()}.json`;
+    a.download = createExportFilename();
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

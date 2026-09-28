@@ -9,7 +9,7 @@ const STEPS = [
 ];
 
 interface Props {
-  onDone: () => void;
+  onDone: (immediate?: boolean) => void;
 }
 
 export default function Preloader({ onDone }: Props) {
@@ -17,24 +17,18 @@ export default function Preloader({ onDone }: Props) {
   const [stepIndex, setStepIndex] = useState(0);
   const [isExiting, setIsExiting] = useState(false);
   const doneRef = useRef(onDone);
-  const skipTimer = useRef(0);
-
-  useEffect(() => {
-    return () => window.clearTimeout(skipTimer.current);
-  }, []);
 
   useEffect(() => {
     doneRef.current = onDone;
   }, [onDone]);
 
-  // Clean 4.8-second paced sequence. Skipped instantly for
-  // reduced-motion users; parent also force-dismisses on a timer.
+  // Clean, sleek 2.0-second paced sequence with immediate skip and tab-focus resilience
   useEffect(() => {
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
-      doneRef.current();
+      doneRef.current(true);
       return;
     }
-    const TOTAL_MS = 4600;
+    const TOTAL_MS = 2000;
     const start = performance.now();
     let frameId = 0;
     const timers: number[] = [];
@@ -53,37 +47,43 @@ export default function Preloader({ onDone }: Props) {
       setCount(currentVal);
 
       const idx = Math.min(Math.floor((currentVal / 100) * 4), 3);
-      setStepIndex(currentVal >= 100 ? 4 : idx);
+      setStepIndex(currentVal >= 100 ? 3 : idx);
 
       if (progress < 1) {
         frameId = requestAnimationFrame(tick);
       } else {
+        setIsExiting(true);
         timers.push(
           window.setTimeout(() => {
-            setIsExiting(true);
-            timers.push(
-              window.setTimeout(() => {
-                doneRef.current();
-              }, 750)
-            );
-          }, 350)
+            doneRef.current();
+          }, 450)
         );
       }
     };
 
     frameId = requestAnimationFrame(tick);
+
+    // Fallback interval in case requestAnimationFrame throttles when tab is backgrounded
+    const fallbackInterval = window.setInterval(() => {
+      const elapsed = performance.now() - start;
+      if (elapsed >= TOTAL_MS + 200) {
+        cancelAnimationFrame(frameId);
+        window.clearInterval(fallbackInterval);
+        setIsExiting(true);
+        doneRef.current();
+      }
+    }, 250);
+
     return () => {
       cancelAnimationFrame(frameId);
+      window.clearInterval(fallbackInterval);
       timers.forEach((t) => window.clearTimeout(t));
     };
   }, []);
 
   const handleSkip = () => {
     setIsExiting(true);
-    window.clearTimeout(skipTimer.current);
-    skipTimer.current = window.setTimeout(() => {
-      doneRef.current();
-    }, 400);
+    doneRef.current(true);
   };
 
   const activeStep = STEPS[stepIndex] || STEPS[0];
