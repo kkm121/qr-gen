@@ -1,24 +1,29 @@
 # Security Policy
 
-## Supported versions
+## Supported Versions
 
-This is a recruitment submission. The latest commit on the default branch is the
-supported version.
+The latest commit on the primary repository branch (`main`) is the actively maintained and supported version.
 
-## Reporting a vulnerability
+| Version | Supported | Notes |
+| :--- | :--- | :--- |
+| `1.0.x` (latest) | Yes | Actively maintained client-side release |
+| `< 1.0.0` | No | Legacy prototype releases |
 
-Please **do not** open a public issue for security problems. Instead, contact
-the repository owner privately with:
+## Reporting a Vulnerability
 
-- A description of the issue
-- Steps to reproduce
-- The commit hash you tested
+If you discover a security vulnerability or sensitive bug within this repository, please **do not** open a public issue. Instead, report it privately to the repository maintainer through private GitHub vulnerability reporting or direct contact.
 
-Expect an acknowledgement within 7 days.
+Please include:
+- A clear description of the potential vulnerability
+- Step-by-step instructions or proof of concept to reproduce the issue
+- Affected browser versions or operating systems
+- Commit hash or tag tested
 
-## Scope notes
+Expect an initial acknowledgement within 48 to 72 hours.
 
-- This app is fully client-side: no server, no accounts, no tracking.
-- Uploaded logos are processed in-browser via `FileReader` and never leave the device.
-- QR payloads and preferences persist only in the visitor's own `localStorage`.
-- There is no secret handling; do not commit tokens or private URLs.
+## Security Architecture & Scope
+
+- **100% Client-Side Execution**: All QR matrix synthesis, Reed-Solomon calculations, and image rasterization occur entirely in the visitor's local browser runtime. No data is transmitted to external servers.
+- **Local Asset Handling**: Custom logo uploads are parsed in-memory using the standard browser `FileReader` API as data URIs and never leave the device.
+- **Client Storage**: Recent generations are persisted strictly within the user's browser `IndexedDB` storage with client-side export and atomic deletion controls.
+- **Dependency Integrity**: Regular dependency vulnerability audits are conducted with zero tolerated CVEs.

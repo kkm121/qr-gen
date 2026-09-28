@@ -1,26 +1,66 @@
-# Contributing
+# Contributing Guidelines
 
-Thanks for your interest in this GDG SRM recruitment submission.
+Thank you for contributing to QR Studio. We welcome community contributions, bug reports, and feature proposals.
 
-## How to contribute
+## Development Workflow
 
-1. Fork the repo and create a branch: `git checkout -b feat/my-change`.
-2. Install and run locally:
+1. **Fork and Clone**:
+   ```bash
+   git clone https://github.com/kkm121/qr-gen.git
+   cd qr-gen
+   ```
+2. **Install Dependencies**:
    ```bash
    npm install
+   ```
+3. **Start Development Server**:
+   ```bash
    npm run dev
    ```
-3. Keep changes focused; match the existing code style (TypeScript, functional React).
-4. Verify before pushing:
+4. **Create a Feature Branch**:
+   ```bash
+   git checkout -b feat/your-feature-name
+   # or
+   git checkout -b fix/your-bugfix-name
+   ```
+
+## Commit Standards
+
+We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
+- `feat:` A new feature or capability
+- `fix:` A bug fix
+- `docs:` Documentation modifications
+- `test:` Adding or updating automated tests
+- `refactor:` Code refactoring without behavior change
+- `perf:` Performance improvements
+- `chore:` Build scripts, dependencies, or configuration changes
+
+## Verification Checklist
+
+Before submitting a pull request, verify the following locally:
+
+1. **Unit Tests**:
+   ```bash
+   npm test
+   ```
+   All tests must pass cleanly.
+2. **Linter & Code Standards**:
+   ```bash
+   npm run lint
+   ```
+   Zero errors and zero warnings required.
+3. **Production Typecheck & Build**:
    ```bash
    npm run build
    ```
-   Manually test the 5 QR types, customization, PNG/SVG download, invalid inputs, and page refresh persistence.
-5. Open a pull request using the provided template, including screenshots for UI changes.
+   TypeScript static checks and Vite production bundling must succeed with exit code 0.
+4. **Scannability Assurance**: Any new visual styles or color presets must be verified scannable against real-world smartphone camera lenses.
 
-## Guidelines
+## Submitting Pull Requests
 
-- Do not commit `node_modules/` or `dist/`.
-- Do not paste code you don't own — original work only (recruitment plagiarism rules apply).
-- Keep QR outputs scannable: any new style/preset must pass a real phone-camera scan test.
-- Update `README.md` and `screenshots/` when behavior or UI changes.
+1. Push your branch to your remote fork:
+   ```bash
+   git push origin feat/your-feature-name
+   ```
+2. Open a Pull Request targeting the `main` branch.
+3. Complete the [Pull Request Template](.github/pull_request_template.md) with details of changes, testing steps, and relevant screenshots.

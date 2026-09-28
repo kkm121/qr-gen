@@ -1,11 +1,15 @@
 {
   "name": "frontend-qr-generator",
+  "description": "QR Studio — Professional, client-side vector QR code studio with live customization, 3D stage physics, SVG/PNG export, and client database storage.",
+  "version": "1.0.0",
   "private": true,
-  "version": "0.0.0",
+  "author": "QR Studio Contributors",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "test": "node --test src/lib/qr.test.ts",
     "lint": "oxlint",
     "preview": "vite preview"
   },

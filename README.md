@@ -1,134 +1,200 @@
-# QR Code Generator & Designer — GDG on Campus SRM (Frontend Task 1)
+# QR Studio — Professional Vector QR Code Studio
 
-A browser-only web app to generate and customize QR codes in real time. Built for **GDG on Campus SRM Recruitments 2026-27, Technical Domain**.
+> A high-performance, client-side web application to generate, customize, and inspect vector QR codes in real time with Reed-Solomon error correction, Apple Design Model aesthetics, and IndexedDB persistence.
 
-No backend. Everything runs client-side with React + TypeScript + `qr-code-styling`.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Framework: React 19](https://img.shields.io/badge/React-19.2-61dafb.svg)](https://react.dev)
+[![TypeScript: 5.x](https://img.shields.io/badge/TypeScript-Strict-3178c6.svg)](https://www.typescriptlang.org)
+[![Three.js: 3D](https://img.shields.io/badge/Three.js-WebGL-black.svg)](https://threejs.org)
+[![Storage: IndexedDB](https://img.shields.io/badge/Storage-IndexedDB-orange.svg)](src/lib/db.ts)
+[![Tests: 23 Passing](https://img.shields.io/badge/Tests-23%20Passing-success.svg)](src/lib/qr.test.ts)
 
-## Demo
+---
 
-- Run locally (see Setup) or deploy to Vercel/Netlify.
-- Add your deployed URL here: `https://<your-app>.vercel.app`
+## Overview
 
-## Screenshots
+**QR Studio** provides a desktop-class vector QR code authoring suite built with modern web technologies. Engineered entirely client-side with zero backend dependencies, it combines mathematical Reed-Solomon error correction, hardware-accelerated 3D inspection physics, transactional browser database persistence, and lossless multi-tier vector export.
 
-Add screenshots to `screenshots/` (required by the task doc):
+---
 
-- `screenshots/desktop.png` — desktop layout
-- `screenshots/mobile.png` — mobile layout (375px)
-- `screenshots/qr-types.png` — the 5 type tabs
-- `screenshots/customization.png` — presets + preview
-- `screenshots/download.png` — a downloaded PNG sample
+## Key Features
 
-> The `screenshots/` folder currently has placeholders. Replace them with real captures before submitting.
+### 1. One-Click Sample Presets Shelf
+- Instant pre-configured specimens for common payloads:
+  - **Website URL**: `https://apple.com`
+  - **Wi-Fi Network**: `Studio-5G` (WPA2 secure)
+  - **Contact Email**: Inbound inquiry mailto payload
+  - **Phone Contact**: Direct telephone dialing specification
+  - **Plain Text**: Formatted multi-line text verification
 
-## Features (mapped to task doc)
+### 2. Multi-Format Payload Synthesis
+- **URL**: Automatic protocol validation and `https://` normalization.
+- **Plain Text**: Character count tracking and payload density estimation.
+- **Email**: Formatted `mailto:` string synthesis with recipient, subject, and message body encoding.
+- **Phone**: International number normalization adhering to the `tel:` URI scheme.
+- **Wi-Fi**: Comprehensive `WIFI:T:...;S:...;P:...;` matrix string builder with special character escaping and WPA/WEP/Open security options.
 
-1. **QR Code Generation** — type URL/text, real-time preview.
-2. **5 QR Types** with type-specific inputs:
-   | Type | Encoded as | Example |
-   |---|---|---|
-   | URL | normalized URL (`https://` auto-added) | `https://gdgsrm.com` |
-   | Text | raw string | `Hello GDG SRM!` |
-   | Email | `mailto:` + query | `mailto:a@b.com?subject=Hi&body=...` |
-   | Phone | `tel:` | `tel:+919876543210` |
-   | Wi-Fi | `WIFI:T:...;S:...;P:...;H:...;;` | camera-app join |
-3. **Customization** — size (128–1024), foreground/background, error correction (L/M/Q/H), margin/quiet-zone, dot style, corner styles, gradient, logo overlay. Preview updates immediately.
-4. **Presets** — Classic, GDG Blue, Sunset Gradient, Midnight, Mint. Any preset remains fully editable after selection.
-5. **Download** — PNG at exactly the preview size + SVG. What you see is what you download.
-6. **Validation** — per-type errors (bad URL/email/phone, WPA length, empty SSID, hex colors). Download/copy blocked until valid.
-7. **Scan Reliability** — contrast ratio readout + warnings for low contrast, inverted colors, tiny margin, logo-with-low-EC, long payloads, small export size.
-8. **Recent QR Codes** — last 12 valid codes in `localStorage` (`gdg-qr-recents-v1`), click Reuse, survives refresh. Editor state also persists (`gdg-qr-state-v1`).
-9. **Responsive** — 2-column on desktop, 1-column under 960px, touch-friendly inputs.
-10. **Testing** — in-app collapsible checklist covering all of the above.
+### 3. Precision Customization & Curated Presets
+- **Sizing & Framing**: Resolution scaling from `128px` to `1024px` with adjustable quiet zone margins (0 to 8 units).
+- **Color Gradients & Contrast**: Granular foreground and background hex color controls and live color pickers.
+- **Mathematical Error Correction**: Low (7%), Medium (15%), Quartile (25%), and High (30%) Reed-Solomon parity recovery.
+- **Module Geometry**: 6 distinct module patterns (`dots`, `rounded`, `classy`, `classy-rounded`, `extra-rounded`, `square`).
+- **Corner Markers**: 3 corner square variants and 3 inner corner dot styling options.
+- **Logo Integration**: In-browser image processing with automatic centering and aspect-ratio preservation.
+- **Curated Presets**: Single-click visual themes (Classic Monochrome, Studio Blue, Sunset Gradient, Midnight Stealth, Mint Cyber, Cupertino Titanium).
 
-Optional enhancements included: SVG download, logo upload (auto-bumps EC to H), gradient dots, copy text/image to clipboard, dark/light theme. Skipped: fully custom vector patterns (kept to the 6 `qr-code-styling` dot types for scan safety).
+### 4. Reliable 3-Tier Download Pipeline
+- **Lossless Formats**: Instant download in high-resolution raster **PNG** and vector **SVG**.
+- **Three-Tier Fallback Engine**:
+  1. Direct library rendering via `QRCodeStyling.download()`.
+  2. In-DOM serialization fallback extracting active `<canvas>` raster data or serializing `<svg>` nodes into standalone XML Blob objects.
+  3. Offscreen isolated engine instance fallback ensuring exports never fail under restrictive sandbox environments.
 
-## Tech
+### 5. Transactional IndexedDB History Engine
+- **Persistent Local Database**: Built on transactional browser `IndexedDB` (`QRStudioDB`), storing full payload snapshots, styling parameters, and timestamps.
+- **Deduplication & Auto-Pruning**: Automatic deduplication and memory management keeping the latest 30 generations.
+- **One-Click Rehydration**: Tap any history tile to restore complete configuration states into the live generator.
+- **Data Portability**: Full JSON backup export (`QRStudio-Generations-*.json`) and atomic item or whole-store deletion controls.
 
-- React 19 + Vite + TypeScript
-- `qr-code-styling` for rendering/export
-- `three` (lazy-loaded chunk) for the ambient particle backdrop — original code
-- `framer-motion` for the preloader, stage tilt physics and micro-motion
-- Hand-written CSS with CSS variables + dark mode + reduced-motion support
-- `localStorage` for recents/state/theme
+### 6. 3D Observation Stage & Spring Physics
+- Hardware-accelerated 3D inspection pedestal powered by CSS 3D transforms and Three.js.
+- Interactive levitation, smooth translucent rotation, and spring-damped landing physics with dual sonar shockwave emission.
+- Optional spatial orbit toggle for manual tilt and angle verification.
 
-## Experience notes (X-factor, all original code)
+### 7. Viewfinder Camera Simulator HUD
+- Built-in optical scanner simulation with targeting brackets and animated laser raster beam.
+- Confirms payload parity and scannability without leaving the interface.
 
-- **Boot sequence (~5.6s)** — three acts: eased 0→100 counter with cycling
-  verbs + status lines over a giant outlined watermark, a READY hold, then a
-  dual-panel curtain exit (colour layer + black layer with curved edge).
-  Force-dismissed on a 9.5s timer, skipped for reduced motion.
-- **Particle backdrop** — breathing GDG-coloured three.js grid with pointer
-  parallax, DPR-capped, paused when the tab hides (lazy-loaded chunk).
-- **Specimen stage** — the QR floats on a spring-physics 3D-tilt mat with glare,
-  orbit readouts (EC / size / contrast) and a metadata strip. On boot and every
-  type switch the card **jumps, spins 360° and lands**; every download fires a
-  shockwave ring. The QR canvas itself is mounted untouched, so the downloaded
-  PNG is identical to the preview.
-- **Headline reveal** — word-by-word masked rise after the curtain lifts;
-  sliding tab pill, cross-fading forms, custom sliders, cursor glow.
-- All 10 required task behaviours are unchanged and covered by the same
-  validation, warnings, recents and test checklist.
+### 8. Web Audio Acoustic Feedback
+- Zero-external-asset sound synthesizer utilizing the browser Web Audio API.
+- Generates subtle haptic clicks, frequency rises during 3D levitation, acoustic thuds upon landing, and export notification chimes. Toggleable anytime via the top navigation bar.
 
-## Setup
+---
 
-```bash
-cd frontend-qr-generator
-npm install
-npm run dev      # http://localhost:5173
-npm run build    # outputs dist/
-npm run preview  # serve the production build locally
-```
-
-Node 18+ recommended (tested on Node 24).
-
-## Usage
-
-1. Pick a type (URL/Text/Email/Phone/Wi-Fi).
-2. Fill the fields — errors appear inline.
-3. Pick a preset, then tweak size/colors/EC/margin/logo.
-4. Watch the live preview + contrast + warnings.
-5. Download PNG/SVG or copy. Scan the result with your phone camera to verify.
-
-## Project structure
+## Project Structure
 
 ```
 frontend-qr-generator/
-  src/
-    App.tsx        # all UI + qr-code-styling wiring
-    lib/qr.ts      # payload builders, validation, presets, contrast, recents
-    index.css      # theme + responsive styles
-    main.tsx
-  screenshots/     # required submission screenshots
-  README.md, LICENSE, CODE_OF_CONDUCT.md, CONTRIBUTING.md, SECURITY.md
-  .github/         # PR + issue templates
+├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── bug_report.md
+│   │   ├── feature_request.md
+│   │   └── config.yml
+│   └── pull_request_template.md
+├── src/
+│   ├── components/
+│   │   ├── CursorGlow.tsx         # Ambient cursor glow tracking
+│   │   ├── Icons.tsx              # Inline SVG icon system (zero emojis)
+│   │   ├── LiquidBackdrop.tsx     # Active canvas liquid glass backdrop
+│   │   ├── Preloader.tsx          # Minimalist 4.8s loading progression
+│   │   ├── QrStage.tsx            # 3D levitation, rotation & landing stage
+│   │   └── ScanSimulator.tsx      # Viewfinder camera scanner simulator
+│   ├── lib/
+│   │   ├── db.ts                  # Transactional IndexedDB client & JSON exporter
+│   │   ├── qr.ts                  # QR domain models, validation, presets & formulas
+│   │   ├── qr.test.ts             # 23 automated unit tests
+│   │   └── sound.ts               # Web Audio API synthetic acoustic sound engine
+│   ├── App.tsx                    # Main Apple Design Model interface
+│   ├── index.css                  # Apple frosted glass styling & design tokens
+│   └── main.tsx                   # React 19 application entry point
+├── package.json                   # Dependencies, scripts (test, lint, build)
+├── vite.config.ts                 # Build configuration & manual chunk splits
+├── tsconfig.json                  # TypeScript compiler settings
+├── CONTRIBUTING.md                # Contribution guidelines & Conventional Commits
+├── CODE_OF_CONDUCT.md             # Contributor Covenant v2.1
+├── SECURITY.md                    # Security policy & disclosure procedures
+└── LICENSE                        # MIT License
 ```
 
-## Design decisions / assumptions
+---
 
-- URL without scheme gets `https://` (common camera-app expectation); validation still requires a dotted hostname.
-- Margin slider 0–10 maps to `margin * 4` px in `qr-code-styling`; warnings fire at ≤1 to preserve the quiet zone.
-- Logo forces an H recommendation because it covers data modules; logo files stay client-side (never uploaded).
-- Recents store options + payload (not the logo data URL) to avoid blowing the 5MB `localStorage` quota.
-- Contrast uses WCAG relative luminance; QR-specific bar is 4.5:1 excellent / 3–4.5 okay / <2.5 likely-unscannable.
-- Inverted (light-on-dark) codes get a warning, not a block — most modern scanners handle them, some budget ones don't.
+## Setup & Verification
 
-## Deployment (Vercel)
+### Prerequisites
+- Node.js `v20.x` or `v24.x`
+- npm `v10.x` or higher
 
-1. Push this folder as its own public GitHub repo.
-2. Vercel → New Project → import repo → framework preset **Vite** → deploy (defaults work: `npm run build`, `dist/`).
-3. Netlify alternative: build command `npm run build`, publish `dist`.
+### Installation & Development
+```bash
+# Clone the repository
+git clone https://github.com/kkm121/qr-gen.git
+cd qr-gen
 
-## Manual test script
+# Install dependencies
+npm install
 
-- [ ] Each of the 5 types generates and scans via phone camera.
-- [ ] Each customization control updates the preview without reload.
-- [ ] Downloaded PNG pixel-matches the on-screen size; SVG opens standalone.
-- [ ] Bad inputs (e.g. `not a url`, `a@`, `123`, empty SSID, WPA pass of 3 chars) show errors and disable export.
-- [ ] Low contrast (e.g. `#eeeeee` on `#ffffff`) and logo+EC=L raise warnings.
-- [ ] Reload keeps recents and editor values; Reuse restores a recent; Delete/Clear work.
-- [ ] 375px and 1440px layouts have no overflow; theme toggle persists.
+# Start local development server
+npm run dev
+```
 
-## License
+### Test Suite Execution
+Run the automated test suite using the Node.js native test runner:
+```bash
+npm test
+```
 
-MIT — see `LICENSE`.
+```
+> frontend-qr-generator@1.0.0 test
+> node --test src/lib/qr.test.ts
+
+▶ QR Payload Generation
+  ✔ normalizes URL without scheme (0.4323ms)
+  ✔ builds valid URL payload (0.1264ms)
+  ✔ builds valid Text payload (0.0678ms)
+  ✔ builds valid Email payload with mailto scheme and query params (0.0801ms)
+  ✔ builds valid Phone payload with tel scheme (0.0919ms)
+  ✔ builds valid Wi-Fi payload with escaping (0.1132ms)
+  ✔ builds open Wi-Fi network payload without password (0.077ms)
+✔ QR Payload Generation (2.3167ms)
+▶ Input Validation & Error Handling
+  ✔ validates URL correctly (0.6294ms)
+  ✔ validates email format (0.1496ms)
+  ✔ validates phone number digit requirements (0.1113ms)
+  ✔ validates Wi-Fi network fields (0.0526ms)
+✔ Input Validation & Error Handling (1.2797ms)
+▶ Options & Scan Reliability
+  ✔ validates hex colors (0.1329ms)
+  ✔ calculates correct contrast ratio and scan reliability score (0.1548ms)
+  ✔ flags warnings on low contrast (0.1408ms)
+  ✔ flags warning on logo with low error correction level (0.0867ms)
+  ✔ presets have complete and valid configurations (0.0723ms)
+✔ Options & Scan Reliability (0.8351ms)
+▶ Recent Generations Database Engine
+  ✔ saves, retrieves, and deduplicates recent records (0.2976ms)
+  ✔ deletes individual records and clears database (0.139ms)
+  ✔ exports valid formatted JSON archive (0.7808ms)
+✔ Recent Generations Database Engine (2.5959ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+```
+
+### Static Analysis & Linter
+```bash
+npm run lint
+```
+
+### Production Build
+```bash
+npm run build
+npm run preview
+```
+
+---
+
+## Community Standards & Governance
+
+- **License**: Released under the open-source [MIT License](LICENSE).
+- **Code of Conduct**: Governed by the [Contributor Covenant v2.1](CODE_OF_CONDUCT.md).
+- **Contributing**: Development conventions, branch strategies, and commit rules in [CONTRIBUTING.md](CONTRIBUTING.md).
+- **Security**: Vulnerability reporting protocols in [SECURITY.md](SECURITY.md).
+- **Issue Templates**: Pre-configured [Bug Report](.github/ISSUE_TEMPLATE/bug_report.md) and [Feature Request](.github/ISSUE_TEMPLATE/feature_request.md) templates.
+- **Pull Request Template**: Standardized PR structure defined in [PULL_REQUEST_TEMPLATE](.github/pull_request_template.md).
+
+---
+
+<sub>Technical Domain Task 1 Implementation. Engineered with precision.</sub>

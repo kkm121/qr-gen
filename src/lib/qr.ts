@@ -70,11 +70,11 @@ export const DEFAULT_OPTIONS: QROptions = {
 };
 
 export const DEFAULT_FIELDS: TypeFields = {
-  url: { url: 'https://gdgsrm.com' },
-  text: { text: 'Hello GDG SRM!' },
-  email: { to: 'technical@gdgsrm.com', subject: 'Hello GDG', body: 'I want to know more about recruitments.' },
-  phone: { phone: '+919876543210' },
-  wifi: { ssid: 'GDG-SRM', password: 'gdg-on-campus', encryption: 'WPA', hidden: false },
+  url: { url: 'https://apple.com' },
+  text: { text: 'QR Studio Vector Engine' },
+  email: { to: 'contact@example.com', subject: 'Project Inquiry', body: 'Hello, I would like to get in touch.' },
+  phone: { phone: '+15550192834' },
+  wifi: { ssid: 'Studio-Network', password: 'secure-wifi-pass', encryption: 'WPA', hidden: false },
 };
 
 export interface Preset {
@@ -101,9 +101,9 @@ export const PRESETS: Preset[] = [
     },
   },
   {
-    id: 'gdg-blue',
-    name: 'GDG Blue',
-    description: 'Google blue dots, high contrast',
+    id: 'studio-blue',
+    name: 'Studio Blue',
+    description: 'Vibrant cobalt blue with high contrast',
     patch: {
       fg: '#0b57d0',
       bg: '#ffffff',
@@ -157,6 +157,21 @@ export const PRESETS: Preset[] = [
       margin: 2,
       dotType: 'dots',
       cornerSquare: 'dot',
+      cornerDot: 'dot',
+      useGradient: false,
+    },
+  },
+  {
+    id: 'cupertino',
+    name: 'Cupertino Titanium',
+    description: 'Apple space black & platinum aesthetic',
+    patch: {
+      fg: '#0f172a',
+      bg: '#f8fafc',
+      ec: 'H',
+      margin: 2,
+      dotType: 'extra-rounded',
+      cornerSquare: 'extra-rounded',
       cornerDot: 'dot',
       useGradient: false,
     },
@@ -240,7 +255,7 @@ export function validateInputs(type: QRType, fields: TypeFields): string[] {
     if (!raw) errors.push('Phone number is required.');
     else {
       const digits = raw.replace(/\D/g, '');
-      if (!/^\+?[0-9\s()\-]{7,20}$/.test(raw)) errors.push('Enter a valid phone number (digits, +, spaces, dashes).');
+      if (!/^\+?[0-9\s()-]{7,20}$/.test(raw)) errors.push('Enter a valid phone number (digits, +, spaces, dashes).');
       else if (digits.length < 7 || digits.length > 15) errors.push('Phone number must have 7-15 digits.');
     }
   }
@@ -440,4 +455,29 @@ export function timeAgo(ts: number): string {
   const h = Math.floor(m / 60);
   if (h < 24) return `${h}h ago`;
   return new Date(ts).toLocaleDateString();
+}
+
+export function calculateScanScore(
+  ratio: number,
+  ec: ECLevel,
+  margin: number,
+  hasLogo: boolean
+): number {
+  let score = 55;
+  if (ratio >= 7) score += 25;
+  else if (ratio >= 4.5) score += 18;
+  else if (ratio >= 3) score += 8;
+  else score -= 35;
+
+  if (ec === 'H') score += 12;
+  else if (ec === 'Q') score += 8;
+  else if (ec === 'M') score += 4;
+
+  if (margin >= 2) score += 8;
+  else if (margin === 1) score += 2;
+  else score -= 12;
+
+  if (hasLogo && (ec === 'L' || ec === 'M')) score -= 25;
+
+  return Math.max(15, Math.min(100, Math.round(score)));
 }
