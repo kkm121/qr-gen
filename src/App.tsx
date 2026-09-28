@@ -1,5 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import QRCodeStyling from 'qr-code-styling';
+import { AnimatePresence } from 'framer-motion';
+import Preloader from './components/Preloader';
+import QrStage from './components/QrStage';
+
+// three.js is heavy — split it into its own chunk so first paint stays fast.
+const ParticleField = lazy(() => import('./components/ParticleField'));
 import {
   DEFAULT_FIELDS,
   DEFAULT_OPTIONS,
@@ -59,6 +65,14 @@ export default function App() {
   });
   const [notice, setNotice] = useState<string | null>(null);
   const [logoName, setLogoName] = useState<string>('');
+  const [booted, setBooted] = useState(false);
+  const dismissBoot = useCallback(() => setBooted(true), []);
+
+  // Hard fallback so the loader can never trap the UI.
+  useEffect(() => {
+    const t = window.setTimeout(() => setBooted(true), 5000);
+    return () => window.clearTimeout(t);
+  }, []);
 
   const previewRef = useRef<HTMLDivElement>(null);
   const qrRef = useRef<QRCodeStyling | null>(null);
@@ -111,10 +125,11 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // live update
+  // live update (and re-mount into the stage when it remounts)
   useEffect(() => {
     const qr = qrRef.current;
-    if (!qr) return;
+    const el = previewRef.current;
+    if (!qr || !el) return;
     const data = payload || 'placeholder';
     qr.update({
       data,
@@ -141,6 +156,7 @@ export default function App() {
       cornersSquareOptions: { type: options.cornerSquare, color: isValidHex(options.fg) ? options.fg : '#111111' },
       cornersDotOptions: { type: options.cornerDot, color: isValidHex(options.fg) ? options.fg : '#111111' },
     });
+    if (el.childElementCount === 0 && isValid) qr.append(el);
   }, [payload, options, isValid]);
 
   // auto-save recents (debounced)
@@ -248,14 +264,22 @@ export default function App() {
 
   return (
     <div className="page">
+      <AnimatePresence>{!booted && <Preloader onDone={dismissBoot} />}</AnimatePresence>
+      <Suspense fallback={null}>
+        <ParticleField />
+      </Suspense>
       <header className="topbar">
         <div className="brand">
           <span className="gdg-dots" aria-hidden="true">
             <i className="dot blue" /><i className="dot red" /><i className="dot yellow" /><i className="dot green" />
           </span>
           <div>
-            <h1>QR Code Generator &amp; Designer</h1>
-            <p>GDG on Campus SRM · Technical Domain · Frontend Task 1</p>
+            <p className="kicker">GDG on Campus SRM · Technical Domain · Frontend Task 1</p>
+            <h1>
+              QR <em>Atelier</em> — turn anything
+              <br />
+              into a scannable object.
+            </h1>
           </div>
         </div>
         <div className="top-actions">
@@ -264,6 +288,16 @@ export default function App() {
           </button>
         </div>
       </header>
+
+      <div className="marquee" aria-hidden="true">
+        <div className="marquee-track">
+          {Array.from({ length: 2 }).map((_, k) => (
+            <span key={k}>
+              REALTIME ENCODE · FIVE QR TYPES · ERROR CORRECTION · PRESETS · PNG + SVG EXPORT · SCAN-SAFE BY DESIGN · NO BACKEND ·&nbsp;
+            </span>
+          ))}
+        </div>
+      </div>
 
       {notice && <div className="toast" role="status">{notice}</div>}
 
@@ -501,9 +535,14 @@ export default function App() {
               <ul>{allErrors.map((e) => <li key={e}>{e}</li>)}</ul>
             </div>
           ) : (
-            <div className="qr-wrap">
-              <div ref={previewRef} className="qr-box" aria-label="Generated QR code" />
-            </div>
+            <QrStage
+              hostRef={previewRef}
+              size={options.size}
+              ec={options.ec}
+              ratio={ratio.toFixed(2)}
+              payloadLen={payload.length}
+              valid={isValid}
+            />
           )}
 
           <div className="payload">

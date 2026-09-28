@@ -47,8 +47,22 @@ Optional enhancements included: SVG download, logo upload (auto-bumps EC to H), 
 
 - React 19 + Vite + TypeScript
 - `qr-code-styling` for rendering/export
-- No UI framework, hand-written CSS with CSS variables + dark mode
+- `three` (lazy-loaded chunk) for the ambient particle backdrop — original code
+- `framer-motion` for the preloader, stage tilt physics and micro-motion
+- Hand-written CSS with CSS variables + dark mode + reduced-motion support
 - `localStorage` for recents/state/theme
+
+## Experience notes (X-factor, all original code)
+
+- **Boot preloader** — eased 0→100 counter with cycling verbs and a curved
+  curtain exit; force-dismissed on a 5s timer and skipped for reduced motion.
+- **Particle backdrop** — breathing GDG-coloured three.js grid with pointer
+  parallax, DPR-capped, paused when the tab hides.
+- **Specimen stage** — the QR floats on a spring-physics 3D-tilt mat with glare,
+  orbit readouts (EC / size / contrast) and a metadata strip. The QR canvas
+  itself is mounted untouched, so the downloaded PNG is identical to the preview.
+- All 10 required task behaviours are unchanged and covered by the same
+  validation, warnings, recents and test checklist.
 
 ## Setup
 
